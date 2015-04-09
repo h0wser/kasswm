@@ -1,0 +1,8 @@
+sources = Split("""
+	main.c
+	client.c
+""")
+
+env = Environment(CCFLAGS = ["-Wall", "-std=c99", "-g"])
+
+env.Program(target = "kasswm", source = sources, LIBS = ["xcb"])
