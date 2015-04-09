@@ -1,0 +1,5 @@
+build/*
+.ycm_*
+*.swp
+*.o
+*.so
