@@ -1,6 +1,7 @@
 sources = Split("""
 	main.c
 	client.c
+	list.c
 """)
 
 env = Environment(CCFLAGS = ["-Wall", "-std=c99", "-g"])

@@ -64,3 +64,33 @@ void toggle_map_window(xcb_connection_t *c, client_t client)
 		map_window(c, client);
 }
 
+client_t* new_window(xcb_connection_t *c, xcb_window_t window)
+{
+	xcb_get_geometry_reply_t *geom = NULL;
+	xcb_get_geometry_cookie_t cookie;
+	client_t* client = NULL;
+
+	client = malloc(sizeof(client_t));
+	check(client, "Failed to malloc client");
+
+	client->window = window;
+	cookie = xcb_get_geometry_unchecked(c, window);
+	geom = xcb_get_geometry_reply(c, cookie, 0);
+	check(geom, "Failed to get window geometry");
+
+	client->x = geom->x;
+	client->y = geom->y;
+	client->width = geom->height;
+	client->height = geom->height;
+	client->mapped = FALSE;
+
+error: 
+	if (geom) free(geom);
+	return client;
+}
+
+void destroy_window(xcb_connection_t *c, client_t *client)
+{
+
+}
+

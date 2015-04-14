@@ -6,14 +6,20 @@
 
 #include "util.h"
 #include "client.h"
+#include "list.h"
 
 /* func declarations */
 void events_loop(void);
+
+/* Helper functions */
+client_t* find_window(xcb_window_t window);
+void remove_window(xcb_window_t window);
 
 /* globals */
 xcb_connection_t *c;
 xcb_screen_t *screen;
 xcb_window_t root;
+list_head_t* clients;
 
 void events_loop(void)
 {
@@ -24,7 +30,13 @@ void events_loop(void)
 		{
 			case XCB_CREATE_NOTIFY:
 			{
-				pdebug("Window created");
+				xcb_create_notify_event_t *e = (xcb_create_notify_event_t*) event;
+
+				client_t *client = new_window(c, e->window);
+				list_item_t *item = list_new_item(clients);
+				item->data = (void*)client;
+
+				pdebug("Added window: %p", item->data);
 
 				break;
 			}
@@ -33,18 +45,22 @@ void events_loop(void)
 				pdebug("Window requested map");
 
 				xcb_map_request_event_t *e = (xcb_map_request_event_t*) event;
-				xcb_get_geometry_reply_t *geom = xcb_get_geometry_reply(c, xcb_get_geometry(c, e->window), 0);
 
-				client_t client;
-				client.window = e->window;
+				client_t *client = find_window(e->window);
 
-				move_window(c, client, 30, 30);
-				resize_window(c, client, 400, 400);
-				map_window(c, client);
+				move_window(c, *client, 30, 30);
+				resize_window(c, *client, 400, 400);
+				map_window(c, *client);
 
 				xcb_flush(c);
 
-				free(geom);
+				break;
+			}
+			case XCB_DESTROY_NOTIFY:
+			{
+				pdebug("Window destroyed");
+				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event; 
+				remove_window(e->window);
 				break;
 			}
 			default:
@@ -52,6 +68,29 @@ void events_loop(void)
 				break;
 		}
 		free(event);
+	}
+}
+
+client_t* find_window(xcb_window_t window)
+{
+	list_item_t *i;
+
+	for (i = clients->start; i != NULL; i = i->next) {
+		if (((client_t*)i->data)->window == window)
+			return (client_t*)i->data;
+	}
+
+	return NULL;
+}
+
+void remove_window(xcb_window_t window)
+{
+	list_item_t *i;
+	for (i = clients->start; i != NULL; i = i->next) {
+		if (((client_t*)i->data)->window == window) {
+			list_del_item(clients, i);
+			break;
+		}
 	}
 }
 
@@ -94,10 +133,12 @@ int main(int argc, char** argv)
 	log_info("White pixel: %d", screen->white_pixel);
 	log_info("Black pixel: %d", screen->black_pixel);
 
+	clients = list_new();
+
 	events_loop();
 
-error:
 
+error:
 
 	return 0;
 }

@@ -26,6 +26,7 @@ void map_window(xcb_connection_t *c, client_t client);
 void unmap_window(xcb_connection_t *c, client_t client);
 void toggle_map_window(xcb_connection_t *c, client_t client);
 
-
+client_t* new_window(xcb_connection_t *c, xcb_window_t window);
+void destroy_window(xcb_connection_t *c, client_t *client);
 
 #endif /* CLIENT_H */
