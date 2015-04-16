@@ -8,6 +8,7 @@ typedef struct client_t
 	xcb_window_t window;
 	uint16_t x, y;
 	uint16_t width, height;
+	uint8_t depth;
 	int mapped;
 	int dankness;
 } client_t;
@@ -25,6 +26,8 @@ void resize_window(xcb_connection_t *c, client_t client, uint16_t width, uint16_
 void map_window(xcb_connection_t *c, client_t client);
 void unmap_window(xcb_connection_t *c, client_t client);
 void toggle_map_window(xcb_connection_t *c, client_t client);
+
+void set_window_border(xcb_connection_t *c, client_t client, uint16_t border_width, int color);
 
 client_t* new_window(xcb_connection_t *c, xcb_window_t window);
 void destroy_window(xcb_connection_t *c, client_t *client);

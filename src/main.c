@@ -8,6 +8,9 @@
 #include "client.h"
 #include "list.h"
 
+#define BORDER_WIDTH 3
+#define BORDER_COLOR 0x333333
+
 /* func declarations */
 void events_loop(void);
 
@@ -30,14 +33,7 @@ void events_loop(void)
 		{
 			case XCB_CREATE_NOTIFY:
 			{
-				xcb_create_notify_event_t *e = (xcb_create_notify_event_t*) event;
-
-				client_t *client = new_window(c, e->window);
-				list_item_t *item = list_new_item(clients);
-				item->data = (void*)client;
-
-				pdebug("Added window: %p", item->data);
-
+				pdebug("Window created");
 				break;
 			}
 			case XCB_MAP_REQUEST:
@@ -46,10 +42,17 @@ void events_loop(void)
 
 				xcb_map_request_event_t *e = (xcb_map_request_event_t*) event;
 
-				client_t *client = find_window(e->window);
+				client_t *client;
+				client = find_window(e->window);
+				if (!client) {
+					client = new_window(c, e->window);
+					list_item_t *item = list_new_item(clients);
+					item->data = (void*)client;
+				}
 
 				move_window(c, *client, 30, 30);
 				resize_window(c, *client, 400, 400);
+				set_window_border(c, *client, BORDER_WIDTH, BORDER_COLOR);
 				map_window(c, *client);
 
 				xcb_flush(c);

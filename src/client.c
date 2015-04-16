@@ -64,6 +64,20 @@ void toggle_map_window(xcb_connection_t *c, client_t client)
 		map_window(c, client);
 }
 
+void set_window_border(xcb_connection_t *c, client_t client, uint16_t border_width, int color)
+{
+	check(c, "connection can't be null");	
+	uint32_t values[] = { border_width };
+	xcb_configure_window(c, client.window, XCB_CONFIG_WINDOW_BORDER_WIDTH, values);
+
+	values[0] = color;
+	xcb_change_window_attributes(c, client.window, XCB_CW_BORDER_PIXEL, values);
+
+
+error:
+	return;
+}
+
 client_t* new_window(xcb_connection_t *c, xcb_window_t window)
 {
 	xcb_get_geometry_reply_t *geom = NULL;
@@ -78,6 +92,7 @@ client_t* new_window(xcb_connection_t *c, xcb_window_t window)
 	geom = xcb_get_geometry_reply(c, cookie, 0);
 	check(geom, "Failed to get window geometry");
 
+	client->depth = geom->depth;
 	client->x = geom->x;
 	client->y = geom->y;
 	client->width = geom->height;
