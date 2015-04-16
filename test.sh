@@ -24,6 +24,7 @@ do
 		echo "===== Restarting $BIN_PATH ====="
 		DISPLAY=:1 $BIN_PATH &
 		DISPLAY=:1 xsetroot -solid gray
+		DISPLAY=:1 xrdb -m ~/.Xresources
 		PID="$!"
 		LTIME=$ATIME
 	fi
