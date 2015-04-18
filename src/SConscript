@@ -2,8 +2,9 @@ sources = Split("""
 	main.c
 	client.c
 	list.c
+	keyboard.c
 """)
 
 env = Environment(CCFLAGS = ["-Wall", "-std=c99", "-g"])
 
-env.Program(target = "kasswm", source = sources, LIBS = ["xcb"])
+env.Program(target = "kasswm", source = sources, LIBS = ["xcb", "xcb-keysyms"])
