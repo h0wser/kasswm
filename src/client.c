@@ -2,76 +2,76 @@
 
 #include "util.h"
 
-void move_window(xcb_connection_t *c, client_t client, uint16_t x, uint16_t y)
+void move_window(xcb_connection_t *c, client_t *client, uint16_t x, uint16_t y)
 {
 	check(c, "connection is null");
 
-	client.x = x;
-	client.y = y;
+	client->x = x;
+	client->y = y;
 	uint32_t values[] = {x, y};
 
-	 xcb_configure_window(c, client.window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
+	 xcb_configure_window(c, client->window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
 
 error:
 	return;
 }
 
-void move_window_relative(xcb_connection_t *c, client_t client, uint16_t x, uint16_t y)
+void move_window_relative(xcb_connection_t *c, client_t *client, uint16_t x, uint16_t y)
 {
-	move_window(c, client, client.x + x, client.y + y);
+	move_window(c, client, client->x + x, client->y + y);
 }
 
-void resize_window(xcb_connection_t *c, client_t client, uint16_t width, uint16_t height)
+void resize_window(xcb_connection_t *c, client_t *client, uint16_t width, uint16_t height)
 {
 	check(c, "connection is null");
 
-	client.width = width;
-	client.height = height;
+	client->width = width;
+	client->height = height;
 	uint32_t values[] = { width, height};
 
-	xcb_configure_window(c, client.window, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+	xcb_configure_window(c, client->window, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 
 error:
 	return;
 }
 
-void map_window(xcb_connection_t *c, client_t client)
+void map_window(xcb_connection_t *c, client_t *client)
 {
 	check(c, "connection is null");
 
-	xcb_map_window(c, client.window);
-	client.mapped = TRUE;
+	xcb_map_window(c, client->window);
+	client->mapped = TRUE;
 error:
 	return;
 }
 
-void unmap_window(xcb_connection_t *c, client_t client)
+void unmap_window(xcb_connection_t *c, client_t *client)
 {
 	check(c, "connection is null");
 
-	xcb_unmap_window(c, client.window);
+	xcb_unmap_window(c, client->window);
 
-	client.mapped = FALSE;
+	client->mapped = FALSE;
 error:
 	return;
 }
 
-void toggle_map_window(xcb_connection_t *c, client_t client)
+void toggle_map_window(xcb_connection_t *c, client_t *client)
 {
-	if (client.mapped)
+	if (client->mapped)
 		unmap_window(c, client);
 	else 
 		map_window(c, client);
 }
 
-void set_window_border(xcb_connection_t *c, client_t client, uint16_t border_width, int color)
+void set_window_border(xcb_connection_t *c, client_t *client, uint16_t border_width, int color)
 {
 	check(c, "connection can't be null");	
 	uint32_t values[] = { border_width };
-	xcb_configure_window(c, client.window, XCB_CONFIG_WINDOW_BORDER_WIDTH, values);
+	xcb_configure_window(c, client->window, XCB_CONFIG_WINDOW_BORDER_WIDTH, values);
 
 	values[0] = color;
-	xcb_change_window_attributes(c, client.window, XCB_CW_BORDER_PIXEL, values);
+	xcb_change_window_attributes(c, client->window, XCB_CW_BORDER_PIXEL, values);
 
 
 error:

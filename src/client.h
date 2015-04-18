@@ -18,16 +18,16 @@ typedef struct client_t
  * This is in order to be able execute multiple functions before flushing
  */
 
-void move_window(xcb_connection_t *c, client_t client, uint16_t x, uint16_t y);
-void move_window_relative(xcb_connection_t *c, client_t client, uint16_t x, uint16_t y);
+void move_window(xcb_connection_t *c, client_t *client, uint16_t x, uint16_t y);
+void move_window_relative(xcb_connection_t *c, client_t *client, uint16_t x, uint16_t y);
 
-void resize_window(xcb_connection_t *c, client_t client, uint16_t width, uint16_t height);
+void resize_window(xcb_connection_t *c, client_t *client, uint16_t width, uint16_t height);
 
-void map_window(xcb_connection_t *c, client_t client);
-void unmap_window(xcb_connection_t *c, client_t client);
-void toggle_map_window(xcb_connection_t *c, client_t client);
+void map_window(xcb_connection_t *c, client_t *client);
+void unmap_window(xcb_connection_t *c, client_t *client);
+void toggle_map_window(xcb_connection_t *c, client_t *client);
 
-void set_window_border(xcb_connection_t *c, client_t client, uint16_t border_width, int color);
+void set_window_border(xcb_connection_t *c, client_t *client, uint16_t border_width, int color);
 
 client_t* new_window(xcb_connection_t *c, xcb_window_t window);
 void destroy_window(xcb_connection_t *c, client_t *client);

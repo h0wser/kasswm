@@ -3,10 +3,14 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include <xcb/xcb_keysyms.h>
+
+#include <X11/keysym.h>
 
 #include "util.h"
 #include "client.h"
 #include "list.h"
+#include "keyboard.h"
 
 #define BORDER_WIDTH 3
 #define BORDER_COLOR 0x333333
@@ -22,7 +26,8 @@ void remove_window(xcb_window_t window);
 xcb_connection_t *c;
 xcb_screen_t *screen;
 xcb_window_t root;
-list_head_t* clients;
+list_head_t *clients;
+client_t *focused;
 
 void events_loop(void)
 {
@@ -50,10 +55,12 @@ void events_loop(void)
 					item->data = (void*)client;
 				}
 
-				move_window(c, *client, 30, 30);
-				resize_window(c, *client, 400, 400);
-				set_window_border(c, *client, BORDER_WIDTH, BORDER_COLOR);
-				map_window(c, *client);
+				move_window(c, client, 30, 30);
+				resize_window(c, client, 400, 400);
+				set_window_border(c, client, BORDER_WIDTH, BORDER_COLOR);
+				map_window(c, client);
+				xcb_set_input_focus(c, XCB_INPUT_FOCUS_POINTER_ROOT, client->window, XCB_CURRENT_TIME);
+				focused = client;
 
 				xcb_flush(c);
 
@@ -64,6 +71,32 @@ void events_loop(void)
 				pdebug("Window destroyed");
 				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event; 
 				remove_window(e->window);
+
+				if (clients->start) {
+					focused = clients->start->data;
+					xcb_set_input_focus(c, XCB_INPUT_FOCUS_POINTER_ROOT, focused->window, XCB_CURRENT_TIME);
+					xcb_flush(c);
+				} else {
+					focused = NULL;
+				}
+
+				break;
+			}
+			case XCB_KEY_PRESS:
+			{
+				xcb_key_press_event_t *e = (xcb_key_press_event_t*) event;
+				pdebug("key pressed: %d in window: %d", e->detail, e->event);
+
+				if (focused) {
+					if (e->detail == 38) {
+						move_window_relative(c, focused, -20, 0);
+						xcb_flush(c);
+					} else if (e->detail == 56) {
+						move_window_relative(c, focused, 20, 0);
+						xcb_flush(c);
+					}
+				}
+
 				break;
 			}
 			default:
@@ -73,6 +106,7 @@ void events_loop(void)
 		free(event);
 	}
 }
+
 
 client_t* find_window(xcb_window_t window)
 {
@@ -123,7 +157,6 @@ int main(int argc, char** argv)
 		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY 
 		| XCB_EVENT_MASK_STRUCTURE_NOTIFY 
 		| XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT 
-		| XCB_EVENT_MASK_BUTTON_PRESS 
 	};
 
 	xcb_change_window_attributes_checked(c, root, mask, values);
@@ -137,6 +170,19 @@ int main(int argc, char** argv)
 	log_info("Black pixel: %d", screen->black_pixel);
 
 	clients = list_new();
+
+	key_t keys[] = {
+		{ "a", 0 },
+		{ "b", 0 },
+		{ "c", 0 },
+		{ "d", 0 },
+		{ "e", 0 },
+		{ "f", 0 }
+	};
+
+	grab_keys(c, keys, sizeof(keys) / sizeof(key_t), root);
+
+	xcb_flush(c);
 
 	events_loop();
 
