@@ -78,6 +78,18 @@ error:
 	return;
 }
 
+void focus_window(xcb_connection_t *c, client_t *client, client_t **focused)
+{
+	check(c, "connection can't be null");	
+	check(client, "client can't be null");
+
+	xcb_set_input_focus(c, XCB_INPUT_FOCUS_POINTER_ROOT, client->window, XCB_CURRENT_TIME);
+	*focused = client;
+
+error:
+	return;
+}
+
 client_t* new_window(xcb_connection_t *c, xcb_window_t window)
 {
 	xcb_get_geometry_reply_t *geom = NULL;

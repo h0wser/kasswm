@@ -59,7 +59,7 @@ void events_loop(void)
 				resize_window(c, client, 400, 400);
 				set_window_border(c, client, BORDER_WIDTH, BORDER_COLOR);
 				map_window(c, client);
-				xcb_set_input_focus(c, XCB_INPUT_FOCUS_POINTER_ROOT, client->window, XCB_CURRENT_TIME);
+				focus_window(c, client, &focused);
 				focused = client;
 
 				xcb_flush(c);
@@ -73,8 +73,7 @@ void events_loop(void)
 				remove_window(e->window);
 
 				if (clients->start) {
-					focused = clients->start->data;
-					xcb_set_input_focus(c, XCB_INPUT_FOCUS_POINTER_ROOT, focused->window, XCB_CURRENT_TIME);
+					focus_window(c, clients->start->data, &focused);
 					xcb_flush(c);
 				} else {
 					focused = NULL;
