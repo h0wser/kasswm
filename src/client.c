@@ -118,6 +118,6 @@ error:
 
 void destroy_window(xcb_connection_t *c, client_t *client)
 {
-
+	//TODO: implement
 }
 

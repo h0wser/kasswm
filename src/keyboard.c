@@ -6,13 +6,23 @@
 
 static xcb_keysym_t string_to_keysym(char* name);
 
-int grab_keys(xcb_connection_t *c, key_t* keys, int keyc, xcb_window_t root)
+int grab_keys(xcb_connection_t *c, keypress_t* keys, int keyc, xcb_window_t root)
 {
 	xcb_key_symbols_t *keysyms = NULL;
 	xcb_keycode_t *kc = NULL;
 	xcb_keysym_t sym;
 
 	int i;
+	int j;
+	int m;
+
+	/* We want to capture keys even when capslock and numlock are pressed */
+	uint16_t modifiers[] = { 
+		XCB_MOD_MASK_LOCK,
+		XCB_MOD_MASK_2,
+		XCB_MOD_MASK_LOCK | XCB_MOD_MASK_2,
+		0
+	};
 
 	check(c, "c can't be null");
 
@@ -20,14 +30,19 @@ int grab_keys(xcb_connection_t *c, key_t* keys, int keyc, xcb_window_t root)
 	check(keysyms, "Failed to alloc keysyms");
 	for (i = 0; i < keyc; ++i) {
 		sym = string_to_keysym(keys[i].name);
+		keys[i].keysym = sym;
+
 		if (sym == XK_VoidSymbol) {
 			log_error("Invalid keyname: %s", keys[i].name);
 			continue;
 		}
 		
 		kc = xcb_key_symbols_get_keycode(keysyms, sym);
-		xcb_grab_key(c, 1, root, XCB_MOD_MASK_ANY, *kc, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
-		keys[i].keycode = *kc;
+		for (j=0; kc[j] != XCB_NO_SYMBOL; ++j) {
+			for (m = 0; m < 4; ++m) {
+				xcb_grab_key(c, 1, root, keys[i].mask | modifiers[m], kc[j], XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+			}
+		}
 
 		free(kc);
 	}

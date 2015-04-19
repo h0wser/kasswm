@@ -5,12 +5,13 @@
 
 #include <X11/keysym.h>
 
-typedef struct key_t
+typedef struct keypress_t
 {
 	char* name; /* string rep of key */
-	xcb_keycode_t keycode;
-} key_t;
+	xcb_keysym_t keysym;
+	uint16_t mask;
+} keypress_t;
 
-int grab_keys(xcb_connection_t *c, key_t* keys, int keyc, xcb_window_t root);
+int grab_keys(xcb_connection_t *c, keypress_t* keys, int keyc, xcb_window_t root);
 
 #endif /* KEYBOARD_H */

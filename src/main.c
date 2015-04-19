@@ -84,7 +84,7 @@ void events_loop(void)
 			case XCB_KEY_PRESS:
 			{
 				xcb_key_press_event_t *e = (xcb_key_press_event_t*) event;
-				pdebug("key pressed: %d in window: %d", e->detail, e->event);
+				pdebug("key pressed: %d in window: %d. %d", e->detail, e->event, e->state);
 
 				if (focused) {
 					if (e->detail == 38) {
@@ -170,16 +170,16 @@ int main(int argc, char** argv)
 
 	clients = list_new();
 
-	key_t keys[] = {
-		{ "a", 0 },
-		{ "b", 0 },
-		{ "c", 0 },
-		{ "d", 0 },
-		{ "e", 0 },
-		{ "f", 0 }
+	keypress_t keys[] = {
+		{ "a", 0, XCB_MOD_MASK_CONTROL },
+		{ "b", 0, XCB_MOD_MASK_CONTROL },
+		{ "c", 0, XCB_MOD_MASK_ANY },
+		{ "d", 0, XCB_MOD_MASK_ANY },
+		{ "e", 0, XCB_MOD_MASK_ANY },
+		{ "f", 0, XCB_MOD_MASK_ANY }
 	};
 
-	grab_keys(c, keys, sizeof(keys) / sizeof(key_t), root);
+	grab_keys(c, keys, sizeof(keys) / sizeof(keypress_t), root);
 
 	xcb_flush(c);
 
