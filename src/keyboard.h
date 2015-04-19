@@ -5,6 +5,11 @@
 
 #include <X11/keysym.h>
 
+/* 
+ * name can be a alphanumeric key, function key, space, tab, ,(comma), 
+ * .(period), arrow keys, home, pg-up, pg-down
+ * 
+ */
 typedef struct keypress_t
 {
 	char* name; /* string rep of key */
