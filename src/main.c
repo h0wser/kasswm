@@ -11,9 +11,7 @@
 #include "client.h"
 #include "list.h"
 #include "keyboard.h"
-
-#define BORDER_WIDTH 3
-#define BORDER_COLOR 0x333333
+#include "config.h"
 
 /* func declarations */
 void events_loop(void);
@@ -28,6 +26,8 @@ xcb_screen_t *screen;
 xcb_window_t root;
 list_head_t *clients;
 client_t *focused;
+CONFIG cfg;
+
 
 void events_loop(void)
 {
@@ -57,7 +57,7 @@ void events_loop(void)
 
 				move_window(c, client, 30, 30);
 				resize_window(c, client, 400, 400);
-				set_window_border(c, client, BORDER_WIDTH, BORDER_COLOR);
+				set_window_border(c, client, cfg.border_width, cfg.border_normal_color);
 				map_window(c, client);
 				focus_window(c, client, &focused);
 				focused = client;
@@ -134,6 +134,8 @@ int main(int argc, char** argv)
 {
 	int screen_nbr;
 	xcb_screen_iterator_t iter;
+
+	cfg = get_default_config();
 
 	// open connection
 	c = xcb_connect(NULL, &screen_nbr);
