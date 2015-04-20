@@ -12,6 +12,7 @@
 #include "list.h"
 #include "keyboard.h"
 #include "config.h"
+#include "luabinding.h"
 
 /* func declarations */
 void events_loop(void);
@@ -27,7 +28,6 @@ xcb_window_t root;
 list_head_t *clients;
 client_t *focused;
 CONFIG cfg;
-
 
 void events_loop(void)
 {
@@ -135,7 +135,11 @@ int main(int argc, char** argv)
 	int screen_nbr;
 	xcb_screen_iterator_t iter;
 
-	cfg = get_default_config();
+	cfg = DEFAULT_CONFIG;
+	
+	lb_init();
+	/* TODO: find a better way to test config files */
+	lb_load_config("src/lua/config.lua", &cfg);
 
 	// open connection
 	c = xcb_connect(NULL, &screen_nbr);

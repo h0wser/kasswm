@@ -3,8 +3,10 @@ sources = Split("""
 	client.c
 	list.c
 	keyboard.c
+	luabinding.c
+	config.c
 """)
 
 env = Environment(CCFLAGS = ["-Wall", "-std=c99", "-g"])
 
-env.Program(target = "kasswm", source = sources, LIBS = ["xcb", "xcb-keysyms"])
+env.Program(target = "kasswm", source = sources, LIBS = ["xcb", "xcb-keysyms", "lua"])
