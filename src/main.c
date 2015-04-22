@@ -16,6 +16,7 @@
 
 /* func declarations */
 void events_loop(void);
+void setup_callbacks();
 
 /* Helper functions */
 client_t* find_window(xcb_window_t window);
@@ -28,6 +29,12 @@ xcb_window_t root;
 list_head_t *clients;
 client_t *focused;
 CONFIG cfg;
+
+/* Callbacks */
+lb_func on_setup;
+lb_func on_new_window;
+lb_func on_destroy_window;
+lb_func on_key_press;
 
 void events_loop(void)
 {
@@ -63,6 +70,8 @@ void events_loop(void)
 				focused = client;
 
 				xcb_flush(c);
+
+				lb_call(on_new_window);
 
 				break;
 			}
@@ -109,7 +118,18 @@ void events_loop(void)
 	}
 }
 
+void setup_callbacks()
+{
+	on_setup = lb_is_callback("setup");;
+	on_new_window = lb_is_callback("new_window");
+	on_key_press = lb_is_callback("key_press");
+	on_destroy_window = lb_is_callback("destroy_window");
+	pdebug("on_setup: %p", on_setup);
+	pdebug("on_new_window: %p", on_new_window);
+}
 
+
+/* Helper functions */
 client_t* find_window(xcb_window_t window)
 {
 	list_item_t *i;
@@ -132,7 +152,7 @@ void remove_window(xcb_window_t window)
 		}
 	}
 }
-
+/* End helper functions */
 
 int main(int argc, char** argv)
 {
@@ -140,10 +160,6 @@ int main(int argc, char** argv)
 	xcb_screen_iterator_t iter;
 
 	cfg = DEFAULT_CONFIG;
-	
-	lb_init();
-	/* TODO: find a better way to test config files */
-	lb_load_config("src/lua/config.lua", &cfg);
 
 	// open connection
 	c = xcb_connect(NULL, &screen_nbr);
@@ -197,6 +213,14 @@ int main(int argc, char** argv)
 	grab_keys(c, keys, sizeof(keys) / sizeof(keypress_t), root);
 
 	xcb_flush(c);
+
+	lb_init(c, root);
+	/* TODO: find a better way to test config files */
+	lb_load_config("src/lua/config.lua", &cfg);
+
+	setup_callbacks();
+
+	lb_call(on_setup);
 
 	events_loop();
 
