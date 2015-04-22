@@ -1,2 +1,4 @@
-border_normal_color = 0xaa44aa
-border_width = 4
+config = {
+	border_normal_color = 0x220022,
+	border_width = 3
+}

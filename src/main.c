@@ -84,6 +84,10 @@ void events_loop(void)
 			case XCB_KEY_PRESS:
 			{
 				xcb_key_press_event_t *e = (xcb_key_press_event_t*) event;
+				// temp to reload config
+				if (e->detail == 27) {
+					lb_load_config("src/lua/config.lua", &cfg);
+				}
 
 				if (focused) {
 					if (e->detail == 38) {
@@ -92,7 +96,7 @@ void events_loop(void)
 					} else if (e->detail == 56) {
 						move_window_relative(c, focused, 20, 0);
 						xcb_flush(c);
-					}
+					} 
 				}
 
 				break;
@@ -178,6 +182,7 @@ int main(int argc, char** argv)
 	keypress_t keys[] = {
 		{ "a", 0, XCB_MOD_MASK_CONTROL },
 		{ "b", 0, XCB_MOD_MASK_CONTROL },
+		{ "r", 0, XCB_MOD_MASK_CONTROL },
 		{ "c", 0, XCB_MOD_MASK_ANY },
 		{ "d", 0, XCB_MOD_MASK_ANY },
 		{ "e", 0, XCB_MOD_MASK_ANY },

@@ -13,22 +13,60 @@ error:
 	return;
 }
 
-void lb_load_config(char *filename, CONFIG *cfg)
+void lb_load_config(const char *filename, CONFIG *cfg)
 {
 	if (luaL_dofile(L, filename)) {
 		log_warn("error loading config file %s", filename);
 	}
 
-	lua_getglobal(L, "border_normal_color");
-	lua_getglobal(L, "border_width");
+	lb_get_table("config");
 
-	if (!lua_isnumber(L, -2))
-		log_error("border_normal_color needs to be a number");
-	else
-		cfg->border_normal_color = (uint32_t)lua_tonumber(L, -2);
+	cfg->border_width = lb_get_number("border_width");
+	cfg->border_normal_color = lb_get_number("border_normal_color");
+}
 
-	if (!lua_isnumber(L, -1))
-		log_error("border_width needs to be a number");
-	else
-		cfg->border_width = (uint32_t)lua_tonumber(L, -1);
+
+void lb_get_table(const char *name)
+{
+	lua_getglobal(L, name);
+}
+
+int lb_get_number(const char *name)
+{
+	int result = 0;
+	lua_pushstring(L, name);
+	lua_gettable(L, -2);
+	check(lua_isnumber(L, -1), "Lua error, value %s is not a number", name);
+
+	result = lua_tonumber(L, -1);
+
+	lua_pop(L, 1);
+
+error:
+	return result;
+}
+
+const char* lb_get_string(const char *name)
+{
+	const char* result = 0;
+	lua_pushstring(L, name);
+	lua_gettable(L, -2);
+	check(lua_isstring(L, -1), "Lua error, value %s is not a string", name);
+
+	result = lua_tostring(L, -1);
+
+	lua_pop(L, 1);
+
+error:
+	return result;
+}
+
+int lb_call(const char *name, ...)
+{
+	return 1;
+}
+
+void lb_set_context(xcb_connection_t *con, xcb_window_t p_root)
+{
+
 }
