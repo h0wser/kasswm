@@ -1,6 +1,4 @@
 KassWM
 =======
 
-This is a window manager for linux.
-It's going to be written in C and use lua for full configuration.
-The actual window managment will be done in lua and the C backend is mostly a framework.
+Kasswm is a window manager written in C and lua. It is a very barebones project at the moment (like reeeeeaally barebones). The main design goal of kasswm is extensibility for the user. Most of the actual "window managing" will be done from lua. This means that kasswm can for example be used as both a tiling and floating wm.
