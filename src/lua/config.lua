@@ -7,8 +7,10 @@ function kass.setup()
 	print "hello from setup"
 end
 
-function kass.new_window()
-	print "hello from new_window"
+function kass.new_window(window)
+	print("new window created: ", window.id)
+	print("list of windows:")
+	for k, v in pairs(kass.clients) do print(k, v) end
 end
 
 function kass.key_press(key)

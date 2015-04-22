@@ -43,6 +43,11 @@ void events_loop(void)
 	{
 		switch(event->response_type & ~0x80)
 		{
+			// need to figure out what's up with event 0
+			case 0:
+			{
+				break;
+			}
 			case XCB_CREATE_NOTIFY:
 			{
 				pdebug("Window created");
@@ -71,7 +76,11 @@ void events_loop(void)
 
 				xcb_flush(c);
 
-				lb_call(on_new_window);
+				lb_add_window(client);
+
+				lb_push_func(on_new_window);
+				lb_create_window(client);
+				lb_call(1);
 
 				break;
 			}
@@ -79,6 +88,8 @@ void events_loop(void)
 			{
 				pdebug("Window destroyed");
 				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event; 
+
+				lb_remove_window(find_window(e->window));
 				remove_window(e->window);
 
 				if (clients->start) {
@@ -220,7 +231,8 @@ int main(int argc, char** argv)
 
 	setup_callbacks();
 
-	lb_call(on_setup);
+	lb_push_func(on_setup);
+	lb_call(0);
 
 	events_loop();
 

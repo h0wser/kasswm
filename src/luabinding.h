@@ -32,9 +32,19 @@ int lb_get_table(const char *name);
 int lb_get_number(const char *name);
 const char* lb_get_string(const char *name);
 
-/* Call a function defined in lua */
-/* returns 0 on success and 1 on failure */
-int lb_call(lb_func name);
+/* Window functions */
+/* Puts a new window table on the stack with data from client */
+void lb_create_window(client_t *client);
+void lb_add_window(client_t *client);
+void lb_remove_window(client_t *client);
+
+/* Call a function defined in lua
+* First use lb_push_func to push the function name to the stack
+* Then push all argumnets
+* Call lb_call with the number of args to execute the function
+* returns 0 on success and 1 on failure */
+int lb_push_func(lb_func name);
+int lb_call(int nargs);
 
 /* Expose functions to lua */
 lb_func lb_is_callback(const char *name);
