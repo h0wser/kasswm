@@ -7,6 +7,7 @@
 
 #include <X11/keysym.h>
 
+#include "global.h"
 #include "util.h"
 #include "client.h"
 #include "list.h"
@@ -23,11 +24,11 @@ client_t* find_window(xcb_window_t window);
 void remove_window(xcb_window_t window);
 
 /* globals */
-xcb_connection_t *c;
-xcb_screen_t *screen;
-xcb_window_t root;
-list_head_t *clients;
-client_t *focused;
+xcb_connection_t *c = NULL;
+xcb_screen_t *screen = NULL;
+xcb_window_t root = 0;
+list_head_t *clients = NULL;
+client_t *focused = NULL;
 CONFIG cfg;
 
 /* Callbacks */

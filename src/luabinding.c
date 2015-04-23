@@ -1,6 +1,7 @@
 #include "luabinding.h"
 
 #include "util.h"
+#include "global.h"
 
 /* Window function bindings */
 static int lb_window_test(lua_State *l) {
@@ -78,7 +79,7 @@ static int lb_window_focus(lua_State *l) {
 	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
 
-	focus_window(c, client, f);
+	focus_window(c, client, &focused);
 
 error:
 	return 0;
@@ -127,7 +128,7 @@ error:
 static int lb_window_hasfocus(lua_State *l) {
 	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
-	lua_pushboolean(l, (client == *f));
+	lua_pushboolean(l, (client == focused));
 error:
 	return 1;
 }
@@ -149,16 +150,11 @@ static const struct luaL_Reg windowlib_m[] = {
 	{ NULL, NULL }
 };
 
-void lb_init(xcb_connection_t *con, xcb_window_t p_root, client_t **p_focused)
+void lb_init()
 {
 	L = luaL_newstate();
 	check(L, "Failed to get new lua state");
 	luaL_openlibs(L);
-
-	c = con;
-	root = p_root;
-	f = p_focused;
-
 
 	/* Create the kass table in lua */
 	lua_newtable(L);

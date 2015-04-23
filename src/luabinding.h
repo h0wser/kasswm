@@ -18,12 +18,8 @@ typedef const char* lb_func;
 
 /* Globals */
 lua_State *L;
-xcb_connection_t *c;
-xcb_window_t root;
-/* this is dumb */
-client_t **f;
 
-void lb_init(xcb_connection_t *con, xcb_window_t p_root, client_t **p_focused);
+void lb_init();
 void lb_load_config(const char *filename, CONFIG *cfg);
 
 /* Gets a table and puts it on the stack */
