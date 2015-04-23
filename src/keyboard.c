@@ -17,7 +17,7 @@ int grab_keys(xcb_connection_t *c, keypress_t* keys, int keyc, xcb_window_t root
 	int m;
 
 	/* We want to capture keys even when capslock and numlock are pressed */
-	uint16_t modifiers[] = { 
+	static uint16_t modifiers[] = { 
 		XCB_MOD_MASK_LOCK,
 		XCB_MOD_MASK_2,
 		XCB_MOD_MASK_LOCK | XCB_MOD_MASK_2,

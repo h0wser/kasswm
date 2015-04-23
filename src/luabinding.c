@@ -2,17 +2,100 @@
 
 #include "util.h"
 
+/* Window function bindings */
 static int lb_window_test(lua_State *l) {
-	pdebug("Called from lua");
+	client_t *client = lua_touserdata(l, -2);
+	pdebug("Called from lua, by: %p window id: %d", client, client->window);
+
+	return 0;
+}
+
+static int lb_window_move(lua_State *l) {
+	client_t *client = lua_touserdata(l, -3);
+	int x, y;
+	check(client, "client is null");
+
+	x = luaL_checkint(l, 2);
+	y = luaL_checkint(l, 2);
+
+	move_window(c, client, x, y);
+	xcb_flush(c);
+
+error:
+	return 0;
+}
+
+static int lb_window_move_relative(lua_State *l) {
+	client_t *client = lua_touserdata(l, -3);
+	int x, y;
+	check(client, "client is null");
+
+	x = luaL_checkint(l, 2);
+	y = luaL_checkint(l, 2);
+
+	move_window_relative(c, client, x, y);
+	xcb_flush(c);
+
+error:
+	return 0;
+}
+
+static int lb_window_resize(lua_State *l) {
+	client_t *client = lua_touserdata(l, -3);
+	int w, h;
+	check(client, "client is null");
+
+	w = luaL_checkint(l, 2);
+	h = luaL_checkint(l, 2);
+
+	resize_window(c, client, w, h);
+	xcb_flush(c);
+
+error:
+	return 0;
+}
+
+static int lb_window_map(lua_State *l) {
+	client_t *client = lua_touserdata(l, -3);
+	check(client, "client is null");
+
+	map_window(c, client);
+
+error:
+	return 0;
+}
+
+static int lb_window_unmap(lua_State *l) {
+	client_t *client = lua_touserdata(l, -3);
+	check(client, "client is null");
+
+	unmap_window(c, client);
+error:
+	return 0;
+}
+
+static int lb_window_focus(lua_State *l) {
+	client_t *client = lua_touserdata(l, -3);
+	check(client, "client is null");
+
+	focus_window(c, client, f);
+
+error:
 	return 0;
 }
 
 static const struct luaL_Reg windowlib_m[] = {
 	{ "test", lb_window_test },
+	{ "move", lb_window_move },
+	{ "move_relative", lb_window_move_relative },
+	{ "resize", lb_window_resize },
+	{ "show", lb_window_map },
+	{ "hide", lb_window_unmap },
+	{ "focus", lb_window_focus },
 	{ NULL, NULL }
 };
 
-void lb_init(xcb_connection_t *con, xcb_window_t p_root)
+void lb_init(xcb_connection_t *con, xcb_window_t p_root, client_t **p_focused)
 {
 	L = luaL_newstate();
 	check(L, "Failed to get new lua state");
@@ -20,6 +103,8 @@ void lb_init(xcb_connection_t *con, xcb_window_t p_root)
 
 	c = con;
 	root = p_root;
+	f = p_focused;
+
 
 	/* Create the kass table in lua */
 	lua_newtable(L);

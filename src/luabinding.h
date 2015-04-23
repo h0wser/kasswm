@@ -20,8 +20,10 @@ typedef const char* lb_func;
 lua_State *L;
 xcb_connection_t *c;
 xcb_window_t root;
+/* this is dumb */
+client_t **f;
 
-void lb_init(xcb_connection_t *con, xcb_window_t p_root);
+void lb_init(xcb_connection_t *con, xcb_window_t p_root, client_t **p_focused);
 void lb_load_config(const char *filename, CONFIG *cfg);
 
 /* Gets a table and puts it on the stack */
@@ -38,8 +40,6 @@ const char* lb_get_string(const char *name);
 void lb_new_window(client_t **client, xcb_window_t window);
 /* Removes a window from the kass.clients table */
 void lb_remove_window(client_t *client);
-
-
 
 /* Call a function defined in lua
 * First use lb_push_func to push the function name to the stack

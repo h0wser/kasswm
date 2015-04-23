@@ -69,15 +69,9 @@ void events_loop(void)
 					lb_call(1);
 				}
 
-				move_window(c, client, 30, 30);
-				resize_window(c, client, 400, 400);
 				set_window_border(c, client, cfg.border_width, cfg.border_normal_color);
-				map_window(c, client);
-				focus_window(c, client, &focused);
-				focused = client;
 
 				xcb_flush(c);
-
 
 				break;
 			}
@@ -104,16 +98,6 @@ void events_loop(void)
 				// temp to reload config
 				if (e->detail == 27) {
 					lb_load_config("src/lua/config.lua", &cfg);
-				}
-
-				if (focused) {
-					if (e->detail == 38) {
-						move_window_relative(c, focused, -20, 0);
-						xcb_flush(c);
-					} else if (e->detail == 56) {
-						move_window_relative(c, focused, 20, 0);
-						xcb_flush(c);
-					} 
 				}
 
 				break;
@@ -204,25 +188,14 @@ int main(int argc, char** argv)
 	clients = list_new();
 
 	keypress_t keys[] = {
-		{ "a", 0, XCB_MOD_MASK_CONTROL },
-		{ "b", 0, XCB_MOD_MASK_CONTROL },
 		{ "r", 0, XCB_MOD_MASK_CONTROL },
-		{ "c", 0, XCB_MOD_MASK_ANY },
-		{ "d", 0, XCB_MOD_MASK_ANY },
-		{ "e", 0, XCB_MOD_MASK_ANY },
-		{ "f", 0, XCB_MOD_MASK_ANY },
-		{ "1", 0, XCB_MOD_MASK_ANY },
-		{ "2", 0, XCB_MOD_MASK_ANY },
-		{ "-", 0, XCB_MOD_MASK_ANY },
-		{ ",", 0, XCB_MOD_MASK_ANY },
-		{ "f3", 0, XCB_MOD_MASK_ANY }
 	};
 
 	grab_keys(c, keys, sizeof(keys) / sizeof(keypress_t), root);
 
 	xcb_flush(c);
 
-	lb_init(c, root);
+	lb_init(c, root, &focused);
 	/* TODO: find a better way to test config files */
 	lb_load_config("src/lua/config.lua", &cfg);
 
