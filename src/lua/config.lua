@@ -8,12 +8,15 @@ function kass.setup()
 end
 
 function kass.new_window(window)
-	print("new window created: ", window)
-	for k, v in pairs(kass.clients) do print(k, v) end
 	window:move(math.random(400), math.random(400))
 	window:resize(math.random(400), math.random(400))
 	window:show()
 	window:focus()
+
+	print("window data: pos:", window:getx(), window:gety())
+	print("window data: size:", window:getw(), window:geth())
+	print("window data: mapped:", window:mapped())
+	print("window data: focus:", window:hasfocus())
 end
 
 function kass.key_press(key)

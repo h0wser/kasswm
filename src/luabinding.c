@@ -4,14 +4,14 @@
 
 /* Window function bindings */
 static int lb_window_test(lua_State *l) {
-	client_t *client = lua_touserdata(l, -2);
+	client_t *client = lua_touserdata(l, 1);
 	pdebug("Called from lua, by: %p window id: %d", client, client->window);
 
 	return 0;
 }
 
 static int lb_window_move(lua_State *l) {
-	client_t *client = lua_touserdata(l, -3);
+	client_t *client = lua_touserdata(l, 1);
 	int x, y;
 	check(client, "client is null");
 
@@ -26,7 +26,7 @@ error:
 }
 
 static int lb_window_move_relative(lua_State *l) {
-	client_t *client = lua_touserdata(l, -3);
+	client_t *client = lua_touserdata(l, 1);
 	int x, y;
 	check(client, "client is null");
 
@@ -41,7 +41,7 @@ error:
 }
 
 static int lb_window_resize(lua_State *l) {
-	client_t *client = lua_touserdata(l, -3);
+	client_t *client = lua_touserdata(l, 1);
 	int w, h;
 	check(client, "client is null");
 
@@ -56,7 +56,7 @@ error:
 }
 
 static int lb_window_map(lua_State *l) {
-	client_t *client = lua_touserdata(l, -3);
+	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
 
 	map_window(c, client);
@@ -66,7 +66,7 @@ error:
 }
 
 static int lb_window_unmap(lua_State *l) {
-	client_t *client = lua_touserdata(l, -3);
+	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
 
 	unmap_window(c, client);
@@ -75,13 +75,61 @@ error:
 }
 
 static int lb_window_focus(lua_State *l) {
-	client_t *client = lua_touserdata(l, -3);
+	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
 
 	focus_window(c, client, f);
 
 error:
 	return 0;
+}
+
+static int lb_window_getx(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	lua_pushnumber(l, client->x);
+error:
+	return 1;
+}
+
+static int lb_window_gety(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	lua_pushnumber(l, client->y);
+error:
+	return 1;
+}
+
+static int lb_window_getw(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	lua_pushnumber(l, client->width);
+error:
+	return 1;
+}
+
+static int lb_window_geth(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	lua_pushnumber(l, client->height);
+error:
+	return 1;
+}
+
+static int lb_window_mapped(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	lua_pushboolean(l, client->mapped);
+error:
+	return 1;
+}
+
+static int lb_window_hasfocus(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	lua_pushboolean(l, (client == *f));
+error:
+	return 1;
 }
 
 static const struct luaL_Reg windowlib_m[] = {
@@ -92,6 +140,12 @@ static const struct luaL_Reg windowlib_m[] = {
 	{ "show", lb_window_map },
 	{ "hide", lb_window_unmap },
 	{ "focus", lb_window_focus },
+	{ "getx", lb_window_getx },
+	{ "gety", lb_window_gety },
+	{ "getw", lb_window_getw },
+	{ "geth", lb_window_geth },
+	{ "mapped", lb_window_mapped },
+	{ "hasfocus", lb_window_hasfocus },
 	{ NULL, NULL }
 };
 
