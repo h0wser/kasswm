@@ -90,14 +90,12 @@ error:
 	return;
 }
 
-client_t* new_window(xcb_connection_t *c, xcb_window_t window)
+void new_window(xcb_connection_t *c, client_t *client, xcb_window_t window)
 {
 	xcb_get_geometry_reply_t *geom = NULL;
 	xcb_get_geometry_cookie_t cookie;
-	client_t* client = NULL;
 
-	client = malloc(sizeof(client_t));
-	check(client, "Failed to malloc client");
+	check(client, "Client can't be null");
 
 	client->window = window;
 	cookie = xcb_get_geometry_unchecked(c, window);
@@ -113,7 +111,6 @@ client_t* new_window(xcb_connection_t *c, xcb_window_t window)
 
 error: 
 	if (geom) free(geom);
-	return client;
 }
 
 void destroy_window(xcb_connection_t *c, client_t *client)

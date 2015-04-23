@@ -28,8 +28,11 @@ void list_destroy(list_head_t *list);
 /* Frees up the memory of a list item, for internal use */
 void list_free_item(list_item_t *item);
 
-/* Deletes an item from a list */
-void list_del_item(list_head_t *list, list_item_t *item);
+/* Deletes an item from a list and returns it pointer to data*/
+void* list_del_item(list_head_t *list, list_item_t *item);
+
+/* Deletes an item from a list and frees it*/
+void list_del_free_item(list_head_t *list, list_item_t *item);
 
 /* Make space for a new list item */
 list_item_t* list_new_item(list_head_t *list);

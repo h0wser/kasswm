@@ -25,18 +25,21 @@ void lb_init(xcb_connection_t *con, xcb_window_t p_root);
 void lb_load_config(const char *filename, CONFIG *cfg);
 
 /* Gets a table and puts it on the stack */
-/* returns 0 on success and 1 on failure */
+/* Returns 0 on success and 1 on failure */
 int lb_get_table(const char *name);
 
 /* Returns values from a table */
 int lb_get_number(const char *name);
+/* Returns valid pointer on success and NULL on failure */
 const char* lb_get_string(const char *name);
 
 /* Window functions */
-/* Puts a new window table on the stack with data from client */
-void lb_create_window(client_t *client);
-void lb_add_window(client_t *client);
+/* Adds a window to the kass.clients table */
+void lb_new_window(client_t **client, xcb_window_t window);
+/* Removes a window from the kass.clients table */
 void lb_remove_window(client_t *client);
+
+
 
 /* Call a function defined in lua
 * First use lb_push_func to push the function name to the stack
@@ -48,6 +51,5 @@ int lb_call(int nargs);
 
 /* Expose functions to lua */
 lb_func lb_is_callback(const char *name);
-
 
 #endif /* LUABINDING_H */

@@ -8,9 +8,9 @@ function kass.setup()
 end
 
 function kass.new_window(window)
-	print("new window created: ", window.id)
-	print("list of windows:")
+	print("new window created: ", window)
 	for k, v in pairs(kass.clients) do print(k, v) end
+	window:test()
 end
 
 function kass.key_press(key)

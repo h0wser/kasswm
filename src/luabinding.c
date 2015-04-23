@@ -2,6 +2,16 @@
 
 #include "util.h"
 
+static int lb_window_test(lua_State *l) {
+	pdebug("Called from lua");
+	return 0;
+}
+
+static const struct luaL_Reg windowlib_m[] = {
+	{ "test", lb_window_test },
+	{ NULL, NULL }
+};
+
 void lb_init(xcb_connection_t *con, xcb_window_t p_root)
 {
 	L = luaL_newstate();
@@ -15,6 +25,14 @@ void lb_init(xcb_connection_t *con, xcb_window_t p_root)
 	lua_newtable(L);
 	lua_newtable(L);
 	lua_setfield(L, -2, "clients");
+
+	/* Metatable for windows */
+	lua_newtable(L);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_setfuncs(L, windowlib_m, 0);
+	lua_setfield(L, -2, "window");
+
 	lua_setglobal(L, TABLENAME);
 
 error:
@@ -73,45 +91,28 @@ error:
 	return result;
 }
 
-void lb_create_window(client_t *client)
+void lb_new_window(client_t **client, xcb_window_t window)
 {
-	lua_newtable(L);
+	*client = lua_newuserdata(L, sizeof(client_t));
+	new_window(c, *client, window);
 
-	/* Assign member variables */
-	/* push values in reverse order */
-	lua_pushboolean(L, client->mapped);
-	lua_pushnumber(L, client->height);
-	lua_pushnumber(L, client->width);
-	lua_pushnumber(L, client->y);
-	lua_pushnumber(L, client->x);
-	lua_pushnumber(L, client->window);
+	/* This is dumb but i can't use luaL_setmetatable(L, "kass.window") 
+	 * for some reason*/
+	lb_get_table(TABLENAME);
+	lua_getfield(L, -1, "window");
+	lua_setmetatable(L, -3);
 
-	/* Assign them in normal order */
-	lua_setfield(L, -7, "id");
-	lua_setfield(L, -6, "x");
-	lua_setfield(L, -5, "y");
-	lua_setfield(L, -4, "w");
-	lua_setfield(L, -3, "h");
-	lua_setfield(L, -2, "mapped");
-}
-
-void lb_add_window(client_t *client)
-{
-	if (lb_get_table(TABLENAME)) {
-		log_error("Failed to get clients table");
-	}
-
+	/* Add to kass.clients */
 	lua_getfield(L, -1, "clients");
 	check(lua_istable(L, -1), "clients field isn't a table, can't add window");
 
-	lua_pushnumber(L, client->window);
-	lb_create_window(client);
+	lua_pushnumber(L, (*client)->window);
+	lua_pushvalue(L, -4);
 
 	lua_settable(L, -3);
 
 error:
-	lua_pop(L, 1); // pop kass table from stack
-	return;
+	lua_pop(L, 2);
 }
 
 void lb_remove_window(client_t *client)
@@ -179,3 +180,4 @@ lb_func lb_is_callback(const char *name)
 error:
 	return f;
 }
+

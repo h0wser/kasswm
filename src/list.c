@@ -24,7 +24,7 @@ void list_free_item(list_item_t *item)
 	}
 }
 
-void list_del_item(list_head_t *list, list_item_t *item)
+void* list_del_item(list_head_t *list, list_item_t *item)
 {
 	check(list, "List can't be null");
 	check(item, "Item can't be null");
@@ -42,11 +42,15 @@ void list_del_item(list_head_t *list, list_item_t *item)
 
 	if (item->prev)
 		item->prev->next = item->next;
-
-	list_free_item(item);
 	
 error:
-	return;
+	return item->data;
+}
+
+void list_del_free_item(list_head_t *list, list_item_t *item)
+{
+	list_del_item(list, item);	
+	list_free_item(item);
 }
 
 list_item_t* list_new_item(list_head_t *list)

@@ -62,9 +62,11 @@ void events_loop(void)
 				client_t *client;
 				client = find_window(e->window);
 				if (!client) {
-					client = new_window(c, e->window);
+					lb_push_func(on_new_window);
+					lb_new_window(&client, e->window);
 					list_item_t *item = list_new_item(clients);
 					item->data = (void*)client;
+					lb_call(1);
 				}
 
 				move_window(c, client, 30, 30);
@@ -76,11 +78,6 @@ void events_loop(void)
 
 				xcb_flush(c);
 
-				lb_add_window(client);
-
-				lb_push_func(on_new_window);
-				lb_create_window(client);
-				lb_call(1);
 
 				break;
 			}

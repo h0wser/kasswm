@@ -31,7 +31,7 @@ void set_window_border(xcb_connection_t *c, client_t *client, uint16_t border_wi
 
 void focus_window(xcb_connection_t *c, client_t *client, client_t **focused);
 
-client_t* new_window(xcb_connection_t *c, xcb_window_t window);
+void new_window(xcb_connection_t *c, client_t *client, xcb_window_t window);
 void destroy_window(xcb_connection_t *c, client_t *client);
 
 #endif /* CLIENT_H */
