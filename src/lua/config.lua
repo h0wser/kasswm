@@ -5,6 +5,9 @@ config = {
 
 function kass.setup()
 	print "hello from setup"
+	kass.key.bind("r", {"ctrl"}, function()
+		print("Hello my friend")
+	end)
 end
 
 function kass.new_window(window)
@@ -22,3 +25,5 @@ end
 function kass.key_press(key)
 
 end
+
+print("Loaded config")

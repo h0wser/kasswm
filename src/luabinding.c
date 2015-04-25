@@ -150,6 +150,45 @@ static const struct luaL_Reg windowlib_m[] = {
 	{ NULL, NULL }
 };
 
+int keyindex = 0;
+
+static int lb_key_bind(lua_State *l)
+{
+	int i;
+
+	// can't have old data
+	memset(keys + keyindex, 0, sizeof(keypress_t));
+
+	keys[keyindex].name = luaL_checkstring(l, 1);
+
+	if (lua_istable(l, 2)) {
+		for (i = 1; i < 5; i++) {
+			lua_pushnumber(l, i);
+			lua_gettable(l, 2);
+			const char* mod = lua_tostring(l, -1);
+			if (!mod) break;
+
+			if (strcmp(mod, "mod4") == 0)
+				keys[keyindex].mask |= XCB_MOD_MASK_4;
+			else if (strcmp(mod, "ctrl") == 0)
+				keys[keyindex].mask |= XCB_MOD_MASK_CONTROL;
+			else if (strcmp(mod, "alt") == 0)
+				keys[keyindex].mask |= XCB_MOD_MASK_1;
+			else if (strcmp(mod, "shift") == 0)
+				keys[keyindex].mask |= XCB_MOD_MASK_SHIFT;
+		}
+	}
+	
+	keyindex++;
+
+	return 0;
+}
+
+int lb_get_keycount()
+{
+	return keyindex;
+}
+
 void lb_init()
 {
 	L = luaL_newstate();
@@ -158,8 +197,14 @@ void lb_init()
 
 	/* Create the kass table in lua */
 	lua_newtable(L);
+
 	lua_newtable(L);
 	lua_setfield(L, -2, "clients");
+
+	lua_newtable(L);
+	lua_pushcfunction(L, lb_key_bind);
+	lua_setfield(L, -2, "bind");
+	lua_setfield(L, -2, "key");
 
 	/* Metatable for windows */
 	lua_newtable(L);

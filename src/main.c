@@ -30,6 +30,7 @@ xcb_window_t root = 0;
 list_head_t *clients = NULL;
 client_t *focused = NULL;
 CONFIG cfg;
+keypress_t *keys = NULL;
 
 /* Callbacks */
 lb_func on_setup;
@@ -154,6 +155,9 @@ int main(int argc, char** argv)
 
 	cfg = DEFAULT_CONFIG;
 
+	keys = malloc(sizeof(keypress_t) * 64); // COMPLETELY ARBITRARY AND VERY STOOPID
+	check(keys, "failed to malloc keys");
+
 	// open connection
 	c = xcb_connect(NULL, &screen_nbr);
 	check(c, "connection is null");
@@ -188,15 +192,7 @@ int main(int argc, char** argv)
 
 	clients = list_new();
 
-	keypress_t keys[] = {
-		{ "r", 0, XCB_MOD_MASK_CONTROL },
-	};
-
-	grab_keys(c, keys, sizeof(keys) / sizeof(keypress_t), root);
-
-	xcb_flush(c);
-
-	lb_init(c, root, &focused);
+	lb_init();
 	/* TODO: find a better way to test config files */
 	lb_load_config("src/lua/config.lua", &cfg);
 
@@ -205,8 +201,11 @@ int main(int argc, char** argv)
 	lb_push_func(on_setup);
 	lb_call(0);
 
-	events_loop();
+	grab_keys(c, keys, lb_get_keycount(), root);
 
+	xcb_flush(c);
+
+	events_loop();
 
 error:
 

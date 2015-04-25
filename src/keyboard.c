@@ -1,10 +1,10 @@
 #include "keyboard.h"
 
-#include "util.h"
-
 #include <string.h>
 
-static xcb_keysym_t string_to_keysym(char* name);
+#include "util.h"
+
+static xcb_keysym_t string_to_keysym(const char* name);
 
 int grab_keys(xcb_connection_t *c, keypress_t* keys, int keyc, xcb_window_t root)
 {
@@ -130,7 +130,7 @@ static sym lookuptable[] = {
 
 #define N_ELEM sizeof(lookuptable) / sizeof(sym)
 
-static xcb_keysym_t string_to_keysym(char* name)
+static xcb_keysym_t string_to_keysym(const char* name)
 {
 	int i;
 	
