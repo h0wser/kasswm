@@ -38,6 +38,7 @@ int grab_keys(xcb_connection_t *c, keypress_t* keys, int keyc, xcb_window_t root
 		}
 		
 		kc = xcb_key_symbols_get_keycode(keysyms, sym);
+		keys[i].kc = *kc;
 		for (j=0; kc[j] != XCB_NO_SYMBOL; ++j) {
 			for (m = 0; m < 4; ++m) {
 				xcb_grab_key(c, 1, root, keys[i].mask | modifiers[m], kc[j],

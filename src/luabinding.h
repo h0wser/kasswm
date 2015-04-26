@@ -33,6 +33,8 @@ const char* lb_get_string(const char *name);
 
 int lb_get_keycount();
 
+void lb_on_keypress(int index);
+
 /* Window functions */
 /* Adds a window to the kass.clients table */
 void lb_new_window(client_t **client, xcb_window_t window);

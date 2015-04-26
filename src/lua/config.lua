@@ -8,6 +8,11 @@ function kass.setup()
 	kass.key.bind("r", {"ctrl"}, function()
 		print("Hello my friend")
 	end)
+
+	kass.key.bind("a", {"ctrl"}, function()
+		print("this is A")
+	end)
+
 end
 
 function kass.new_window(window)

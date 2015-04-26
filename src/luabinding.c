@@ -155,6 +155,7 @@ int keyindex = 0;
 static int lb_key_bind(lua_State *l)
 {
 	int i;
+	static int cb_index = 1;
 
 	// can't have old data
 	memset(keys + keyindex, 0, sizeof(keypress_t));
@@ -178,7 +179,20 @@ static int lb_key_bind(lua_State *l)
 				keys[keyindex].mask |= XCB_MOD_MASK_SHIFT;
 		}
 	}
-	
+
+	if (lua_isfunction(l, 3)) {
+		lb_get_table(TABLENAME);
+		lua_getfield(l, -1, "key_callbacks");
+
+		lua_pushvalue(l, 3);
+		lua_rawseti(l, -2, cb_index);
+
+		keys[keyindex].callback_index = cb_index;
+
+		cb_index++;
+		lua_pop(l, 2);
+	}
+
 	keyindex++;
 
 	return 0;
@@ -187,6 +201,16 @@ static int lb_key_bind(lua_State *l)
 int lb_get_keycount()
 {
 	return keyindex;
+}
+
+void lb_on_keypress(int index)
+{
+	lb_get_table(TABLENAME);
+	lua_getfield(L, -1, "key_callbacks");
+	lua_rawgeti(L, -1, index);
+	lua_pcall(L, 0, 0, 0);
+
+	lua_pop(L, 2);
 }
 
 void lb_init()
@@ -200,6 +224,9 @@ void lb_init()
 
 	lua_newtable(L);
 	lua_setfield(L, -2, "clients");
+
+	lua_newtable(L);
+	lua_setfield(L, -2, "key_callbacks");
 
 	lua_newtable(L);
 	lua_pushcfunction(L, lb_key_bind);

@@ -102,6 +102,13 @@ void events_loop(void)
 					lb_load_config("src/lua/config.lua", &cfg);
 				}
 
+				for (int i = 0; i < lb_get_keycount(); i++) {
+					if (keys[i].kc == e->detail) {
+						lb_on_keypress(keys[i].callback_index);
+						break;
+					}
+				}
+
 				break;
 			}
 			default:
