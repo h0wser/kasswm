@@ -303,7 +303,7 @@ void lb_new_window(client_t **client, xcb_window_t window)
 	*client = lua_newuserdata(L, sizeof(client_t));
 	new_window(c, *client, window);
 
-	/* This is dumb but i can't use luaL_setmetatable(L, "kass.window") 
+	/* This is dumb but i can't use luaL_setmetatable(L, "kass.window")
 	 * for some reason*/
 	lb_get_table(TABLENAME);
 	lua_getfield(L, -1, "window");
@@ -327,6 +327,9 @@ void lb_remove_window(client_t *client)
 	if (lb_get_table(TABLENAME)) {
 		log_error("Failed to get clients table");
 	}
+	
+	if (!client)
+		goto error; // Die silently
 
 	lua_getfield(L, -1, "clients");
 	check(lua_istable(L, -1), "clients field isn't a table, can't add window");
