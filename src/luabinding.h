@@ -49,6 +49,8 @@ void lb_remove_window(client_t *client);
 int lb_push_func(lb_func name);
 int lb_call(int nargs);
 
+void lb_push_number(int number);
+
 /* Expose functions to lua */
 lb_func lb_is_callback(const char *name);
 

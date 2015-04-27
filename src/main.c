@@ -82,6 +82,10 @@ void events_loop(void)
 				pdebug("Window destroyed");
 				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event; 
 
+				lb_push_func(on_destroy_window);
+				lb_push_number(e->window);
+				lb_call(1);
+
 				lb_remove_window(find_window(e->window));
 				remove_window(e->window);
 
@@ -125,8 +129,6 @@ void setup_callbacks()
 	on_new_window = lb_is_callback("new_window");
 	on_key_press = lb_is_callback("key_press");
 	on_destroy_window = lb_is_callback("destroy_window");
-	pdebug("on_setup: %p", on_setup);
-	pdebug("on_new_window: %p", on_new_window);
 }
 
 

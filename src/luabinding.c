@@ -384,6 +384,11 @@ int lb_call(int nargs)
 	return ret;
 }
 
+void lb_push_number(int number)
+{
+	lua_pushnumber(L, number);
+}
+
 lb_func lb_is_callback(const char *name)
 {
 	lb_func f = NULL;
