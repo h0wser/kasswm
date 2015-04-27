@@ -3,6 +3,12 @@ config = {
 	border_width = 3
 }
 
+function get_focused()
+	for k, v in pairs(kass.clients) do
+		if (v:hasfocus()) then return v end
+	end
+end
+
 function kass.setup()
 	print "hello from setup"
 	kass.key.bind("r", {"ctrl"}, function()
@@ -10,6 +16,7 @@ function kass.setup()
 	end)
 
 	kass.key.bind("a", {"ctrl"}, function()
+		get_focused():move_relative(20, 0)
 		print("this is A")
 	end)
 

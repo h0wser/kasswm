@@ -17,7 +17,7 @@ static int lb_window_move(lua_State *l) {
 	check(client, "client is null");
 
 	x = luaL_checkint(l, 2);
-	y = luaL_checkint(l, 2);
+	y = luaL_checkint(l, 3);
 
 	move_window(c, client, x, y);
 	xcb_flush(c);
@@ -32,7 +32,7 @@ static int lb_window_move_relative(lua_State *l) {
 	check(client, "client is null");
 
 	x = luaL_checkint(l, 2);
-	y = luaL_checkint(l, 2);
+	y = luaL_checkint(l, 3);
 
 	move_window_relative(c, client, x, y);
 	xcb_flush(c);
@@ -47,7 +47,7 @@ static int lb_window_resize(lua_State *l) {
 	check(client, "client is null");
 
 	w = luaL_checkint(l, 2);
-	h = luaL_checkint(l, 2);
+	h = luaL_checkint(l, 3);
 
 	resize_window(c, client, w, h);
 	xcb_flush(c);
