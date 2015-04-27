@@ -22,7 +22,7 @@ do
 		fi
 
 		echo "===== Restarting $BIN_PATH ====="
-		DISPLAY=:1 $BIN_PATH &
+		DISPLAY=:1 $BIN_PATH  "$1" &
 		DISPLAY=:1 xsetroot -solid gray
 		DISPLAY=:1 xrdb -m ~/.Xresources
 		PID="$!"

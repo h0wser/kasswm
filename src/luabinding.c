@@ -260,6 +260,7 @@ void lb_load_config(const char *filename, CONFIG *cfg)
 {
 	if (luaL_dofile(L, filename)) {
 		log_warn("error loading config file %s", filename);
+		exit(1);
 	}
 
 	lb_get_table("config");

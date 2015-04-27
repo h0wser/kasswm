@@ -160,6 +160,11 @@ int main(int argc, char** argv)
 	int screen_nbr;
 	xcb_screen_iterator_t iter;
 
+	if (argc < 2) {
+		printf("No config file specified!");
+		exit(1);
+	}
+
 	cfg = DEFAULT_CONFIG;
 
 	keys = malloc(sizeof(keypress_t) * 64); // COMPLETELY ARBITRARY AND VERY STOOPID
@@ -200,8 +205,8 @@ int main(int argc, char** argv)
 	clients = list_new();
 
 	lb_init(screen->width_in_pixels, screen->height_in_pixels);
-	/* TODO: find a better way to test config files */
-	lb_load_config("src/lua/config.lua", &cfg);
+
+	lb_load_config(argv[1], &cfg);
 
 	setup_callbacks();
 
