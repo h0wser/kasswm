@@ -213,7 +213,7 @@ void lb_on_keypress(int index)
 	lua_pop(L, 2);
 }
 
-void lb_init()
+void lb_init(int w, int h)
 {
 	L = luaL_newstate();
 	check(L, "Failed to get new lua state");
@@ -224,6 +224,15 @@ void lb_init()
 
 	lua_newtable(L);
 	lua_setfield(L, -2, "clients");
+
+	lua_newtable(L);
+
+	lua_pushnumber(L, w);
+	lua_setfield(L, -2, "width");
+	lua_pushnumber(L, h);
+	lua_setfield(L, -2, "height");
+
+	lua_setfield(L, -2, "screen");
 
 	lua_newtable(L);
 	lua_setfield(L, -2, "key_callbacks");

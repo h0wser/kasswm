@@ -19,7 +19,7 @@ typedef const char* lb_func;
 /* Globals */
 lua_State *L;
 
-void lb_init();
+void lb_init(int w, int h);
 void lb_load_config(const char *filename, CONFIG *cfg);
 
 /* Gets a table and puts it on the stack */

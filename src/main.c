@@ -199,7 +199,7 @@ int main(int argc, char** argv)
 
 	clients = list_new();
 
-	lb_init();
+	lb_init(screen->width_in_pixels, screen->height_in_pixels);
 	/* TODO: find a better way to test config files */
 	lb_load_config("src/lua/config.lua", &cfg);
 

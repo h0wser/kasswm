@@ -19,6 +19,7 @@ function kass.setup()
 		get_focused():move_relative(20, 0)
 		print("this is A")
 	end)
+	print(kass.screen.width, kass.screen.height)
 end
 
 function kass.new_window(window)
