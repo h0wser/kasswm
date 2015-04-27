@@ -19,7 +19,7 @@
 #endif
 
 /* Logging */
-#define errno_fmt() (errno == 0 ? "None" : strerror(errno))
+#define errno_fmt() (errno == 0 ? "" : strerror(errno))
 #define log_info(M, ...) fprintf(stderr, "[INFO]: " M "\n", ##__VA_ARGS__)
 #define log_warn(M, ...) fprintf(stderr, "[WARN]: %d: %s " M "\n", errno, errno_fmt(), ##__VA_ARGS__)
 #define log_error(M, ...) fprintf(stderr, "[ERROR]: errno: %d: %s | " M "\n", errno, errno_fmt(), ##__VA_ARGS__)
