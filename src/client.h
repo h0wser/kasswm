@@ -11,6 +11,7 @@ typedef struct client_t
 	uint8_t depth;
 	int mapped;
 	int dankness;
+	uint16_t border_width;
 } client_t;
 
 /* None of these functions use xcb_flush(c).

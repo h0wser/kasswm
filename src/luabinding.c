@@ -49,7 +49,10 @@ static int lb_window_resize(lua_State *l) {
 	w = luaL_checkint(l, 2);
 	h = luaL_checkint(l, 3);
 
-	resize_window(c, client, w, h);
+	resize_window(c, client,
+		w - client->border_width * 2,
+		h - client->border_width * 2);
+
 	xcb_flush(c);
 
 error:
@@ -104,7 +107,7 @@ error:
 static int lb_window_getw(lua_State *l) {
 	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
-	lua_pushnumber(l, client->width);
+	lua_pushnumber(l, client->width + client->border_width * 2);
 error:
 	return 1;
 }
@@ -112,7 +115,7 @@ error:
 static int lb_window_geth(lua_State *l) {
 	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
-	lua_pushnumber(l, client->height);
+	lua_pushnumber(l, client->height + client->border_width * 2);
 error:
 	return 1;
 }

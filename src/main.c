@@ -68,6 +68,7 @@ void events_loop(void)
 					lb_new_window(&client, e->window);
 					list_item_t *item = list_new_item(clients);
 					item->data = (void*)client;
+					client->border_width = cfg.border_width;
 					lb_call(1);
 				}
 
