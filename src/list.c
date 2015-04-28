@@ -10,7 +10,8 @@ void list_clear(list_head_t *list)
 	for (item = list->end; item != NULL; )
 	{
 		item = item->prev;
-		list_del_item(list, item->next);
+		if (item) 
+			list_del_item(list, item->next);
 	}
 }
 
