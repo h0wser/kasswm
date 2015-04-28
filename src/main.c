@@ -18,6 +18,8 @@
 /* func declarations */
 void events_loop(void);
 void setup_callbacks();
+void setup(const char* cfg_file);
+void cleanup();
 
 /* Helper functions */
 client_t* find_window(xcb_window_t window);
@@ -31,12 +33,12 @@ list_head_t *clients = NULL;
 client_t *focused = NULL;
 CONFIG cfg;
 keypress_t *keys = NULL;
+const char* cfg_f;
 
 /* Callbacks */
 lb_func on_setup;
 lb_func on_new_window;
 lb_func on_destroy_window;
-lb_func on_key_press;
 
 void events_loop(void)
 {
@@ -48,6 +50,22 @@ void events_loop(void)
 			// need to figure out what's up with event 0
 			case 0:
 			{
+				break;
+			}
+			case XCB_BUTTON_PRESS:
+			{
+				xcb_button_press_event_t *e = (xcb_button_press_event_t*) event;
+				pdebug("Button pressed: %d, %d", e->detail,
+						e->event);
+
+				client_t *client = find_window(e->event);
+				if (client) {
+					focus_window(c, client, &focused);
+				}
+
+				xcb_allow_events(c, XCB_ALLOW_REPLAY_POINTER, e->time);
+				xcb_flush(c);
+
 				break;
 			}
 			case XCB_CREATE_NOTIFY:
@@ -63,13 +81,23 @@ void events_loop(void)
 
 				client_t *client;
 				client = find_window(e->window);
+
 				if (!client) {
 					lb_push_func(on_new_window);
-					lb_new_window(&client, e->window);
-					list_item_t *item = list_new_item(clients);
-					item->data = (void*)client;
-					client->border_width = cfg.border_width;
+						lb_new_window(&client, e->window);
+						list_item_t *item = list_new_item(clients);
+						item->data = (void*)client;
+						client->border_width = cfg.border_width;
 					lb_call(1);
+
+					xcb_grab_button(c, 1, client->window,
+							XCB_EVENT_MASK_BUTTON_PRESS,
+							XCB_GRAB_MODE_SYNC,
+							XCB_GRAB_MODE_ASYNC,
+							XCB_WINDOW_NONE,
+							XCB_CURSOR_NONE,
+							XCB_BUTTON_INDEX_ANY,
+							XCB_MOD_MASK_ANY);
 				}
 
 				set_window_border(c, client, cfg.border_width, cfg.border_normal_color);
@@ -81,7 +109,7 @@ void events_loop(void)
 			case XCB_DESTROY_NOTIFY:
 			{
 				pdebug("Window destroyed");
-				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event; 
+				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event;
 
 				lb_push_func(on_destroy_window);
 				lb_push_number(e->window);
@@ -104,7 +132,8 @@ void events_loop(void)
 				xcb_key_press_event_t *e = (xcb_key_press_event_t*) event;
 				// temp to reload config
 				if (e->detail == 27) {
-					lb_load_config("src/lua/config.lua", &cfg);
+					cleanup();
+					setup(cfg_f);
 				}
 
 				for (int i = 0; i < lb_get_keycount(); i++) {
@@ -128,8 +157,74 @@ void setup_callbacks()
 {
 	on_setup = lb_is_callback("setup");;
 	on_new_window = lb_is_callback("new_window");
-	on_key_press = lb_is_callback("key_press");
 	on_destroy_window = lb_is_callback("destroy_window");
+}
+
+void setup(const char* cfg_file)
+{
+	xcb_query_tree_cookie_t cookie;
+	xcb_query_tree_reply_t *reply;
+	xcb_window_t *windows;
+	int i;
+
+	cfg = DEFAULT_CONFIG;
+
+	keys = malloc(sizeof(keypress_t) * 64); // COMPLETELY ARBITRARY AND VERY STOOPID
+	check(keys, "failed to malloc keys");
+
+	clients = list_new();
+
+	lb_init(screen->width_in_pixels, screen->height_in_pixels);
+	lb_load_config(cfg_file, &cfg);
+
+	setup_callbacks();
+	lb_push_func(on_setup);
+	lb_call(0);
+
+	grab_keys(c, keys, lb_get_keycount(), root);
+
+	/* Find all windows under the root window and show them to lua */
+	cookie = xcb_query_tree(c, root);
+	reply = xcb_query_tree_reply(c, cookie, NULL);
+	check(reply, "Failed to get windows");
+
+	windows = xcb_query_tree_children(reply);
+	for (i = 0; i < reply->children_len; i++) {
+		client_t *client;
+		lb_push_func(on_new_window);
+			lb_new_window(&client, windows[i]);
+			list_item_t *item = list_new_item(clients);
+			item->data = (void*)client;
+			client->border_width = cfg.border_width;
+		lb_call(1);
+
+		xcb_grab_button(c, 1, client->window,
+				XCB_EVENT_MASK_BUTTON_PRESS,
+				XCB_GRAB_MODE_SYNC,
+				XCB_GRAB_MODE_ASYNC,
+				XCB_WINDOW_NONE,
+				XCB_CURSOR_NONE,
+				XCB_BUTTON_INDEX_ANY,
+				XCB_MOD_MASK_ANY);
+	}
+
+	xcb_flush(c);
+
+	if (reply) free(reply);
+error:
+	return;
+}
+
+void cleanup()
+{
+	if (keys) free(keys);
+	lb_cleanup();
+	list_clear(clients);
+	on_setup = NULL;
+	on_new_window = NULL;
+	on_destroy_window = NULL;
+	xcb_ungrab_key(c, XCB_GRAB_ANY, root, XCB_MOD_MASK_ANY);
+	xcb_flush(c);
 }
 
 
@@ -168,11 +263,6 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
-	cfg = DEFAULT_CONFIG;
-
-	keys = malloc(sizeof(keypress_t) * 64); // COMPLETELY ARBITRARY AND VERY STOOPID
-	check(keys, "failed to malloc keys");
-
 	// open connection
 	c = xcb_connect(NULL, &screen_nbr);
 	check(c, "connection is null");
@@ -190,14 +280,12 @@ int main(int argc, char** argv)
 	uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
 	uint32_t values[] = {
 		screen->white_pixel,
-		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY 
-		| XCB_EVENT_MASK_STRUCTURE_NOTIFY 
-		| XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT 
+		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
+		| XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
 	};
 
 	xcb_change_window_attributes_checked(c, root, mask, values);
-
-	xcb_flush(c);
 
 	log_info("Information of screen: %d", screen->root);
 	log_info("Width: %d", screen->width_in_pixels);
@@ -205,22 +293,10 @@ int main(int argc, char** argv)
 	log_info("White pixel: %d", screen->white_pixel);
 	log_info("Black pixel: %d", screen->black_pixel);
 
-	clients = list_new();
-
-	lb_init(screen->width_in_pixels, screen->height_in_pixels);
-
-	lb_load_config(argv[1], &cfg);
-
-	setup_callbacks();
-
-	lb_push_func(on_setup);
-	lb_call(0);
-
-	grab_keys(c, keys, lb_get_keycount(), root);
-
-	xcb_flush(c);
-
+	cfg_f = argv[1];
+	setup(cfg_f);
 	events_loop();
+	cleanup();
 
 error:
 

@@ -22,6 +22,8 @@ lua_State *L;
 void lb_init(int w, int h);
 void lb_load_config(const char *filename, CONFIG *cfg);
 
+void lb_cleanup();
+
 /* Gets a table and puts it on the stack */
 /* Returns 0 on success and 1 on failure */
 int lb_get_table(const char *name);

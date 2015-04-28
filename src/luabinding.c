@@ -272,6 +272,11 @@ void lb_load_config(const char *filename, CONFIG *cfg)
 	cfg->border_normal_color = lb_get_number("border_normal_color");
 }
 
+void lb_cleanup()
+{
+	lua_close(L);
+	keyindex = 0;
+}
 
 int lb_get_table(const char *name)
 {
