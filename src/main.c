@@ -188,14 +188,17 @@ void cleanup()
 
 void on_maprequest(xcb_window_t window)
 {
-	xcb_get_window_attributes_cookie_t cookie;
-	xcb_get_window_attributes_reply_t *reply;
+	xcb_get_window_attributes_cookie_t attr_cookie;
+	xcb_get_window_attributes_reply_t *attr_reply;
 	client_t *client;
 
-	cookie = xcb_get_window_attributes(c, window);
-	reply = xcb_get_window_attributes_reply(c, cookie, NULL);
-	check(reply, "Failed to get window attributes");
-	if (reply->override_redirect) return;
+	attr_cookie = xcb_get_window_attributes(c, window);
+	attr_reply = xcb_get_window_attributes_reply(c, attr_cookie, NULL);
+	check(attr_reply, "Failed to get window attributes");
+	if (attr_reply->override_redirect) {
+		free(attr_reply);
+		return;
+	}
 
 	client = find_window(window);
 
@@ -221,6 +224,7 @@ void on_maprequest(xcb_window_t window)
 
 	xcb_flush(c);
 error:
+	if (attr_reply) free(attr_reply);
 	return;
 }
 
@@ -283,6 +287,8 @@ int main(int argc, char** argv)
 	};
 
 	xcb_change_window_attributes_checked(c, root, mask, values);
+
+
 
 	log_info("Information of screen: %d", screen->root);
 	log_info("Width: %d", screen->width_in_pixels);
