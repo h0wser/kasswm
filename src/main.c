@@ -20,6 +20,7 @@ void events_loop(void);
 void setup_callbacks();
 void setup(const char* cfg_file);
 void cleanup();
+void on_maprequest(xcb_window_t window);
 
 /* Helper functions */
 client_t* find_window(xcb_window_t window);
@@ -76,34 +77,8 @@ void events_loop(void)
 			case XCB_MAP_REQUEST:
 			{
 				pdebug("Window requested map");
-
 				xcb_map_request_event_t *e = (xcb_map_request_event_t*) event;
-
-				client_t *client;
-				client = find_window(e->window);
-
-				if (!client) {
-					lb_push_func(on_new_window);
-						lb_new_window(&client, e->window);
-						list_item_t *item = list_new_item(clients);
-						item->data = (void*)client;
-						client->border_width = cfg.border_width;
-					lb_call(1);
-
-					xcb_grab_button(c, 1, client->window,
-							XCB_EVENT_MASK_BUTTON_PRESS,
-							XCB_GRAB_MODE_SYNC,
-							XCB_GRAB_MODE_ASYNC,
-							XCB_WINDOW_NONE,
-							XCB_CURSOR_NONE,
-							XCB_BUTTON_INDEX_ANY,
-							XCB_MOD_MASK_ANY);
-				}
-
-				set_window_border(c, client, cfg.border_width, cfg.border_normal_color);
-
-				xcb_flush(c);
-
+				on_maprequest(e->window);
 				break;
 			}
 			case XCB_DESTROY_NOTIFY:
@@ -189,24 +164,8 @@ void setup(const char* cfg_file)
 	check(reply, "Failed to get windows");
 
 	windows = xcb_query_tree_children(reply);
-	for (i = 0; i < reply->children_len; i++) {
-		client_t *client;
-		lb_push_func(on_new_window);
-			lb_new_window(&client, windows[i]);
-			list_item_t *item = list_new_item(clients);
-			item->data = (void*)client;
-			client->border_width = cfg.border_width;
-		lb_call(1);
-
-		xcb_grab_button(c, 1, client->window,
-				XCB_EVENT_MASK_BUTTON_PRESS,
-				XCB_GRAB_MODE_SYNC,
-				XCB_GRAB_MODE_ASYNC,
-				XCB_WINDOW_NONE,
-				XCB_CURSOR_NONE,
-				XCB_BUTTON_INDEX_ANY,
-				XCB_MOD_MASK_ANY);
-	}
+	for (i = 0; i < reply->children_len; i++)
+		on_maprequest(windows[i]);
 
 	xcb_flush(c);
 
@@ -225,6 +184,44 @@ void cleanup()
 	on_destroy_window = NULL;
 	xcb_ungrab_key(c, XCB_GRAB_ANY, root, XCB_MOD_MASK_ANY);
 	xcb_flush(c);
+}
+
+void on_maprequest(xcb_window_t window)
+{
+	xcb_get_window_attributes_cookie_t cookie;
+	xcb_get_window_attributes_reply_t *reply;
+	client_t *client;
+
+	cookie = xcb_get_window_attributes(c, window);
+	reply = xcb_get_window_attributes_reply(c, cookie, NULL);
+	check(reply, "Failed to get window attributes");
+	if (reply->override_redirect) return;
+
+	client = find_window(window);
+
+	if (!client) {
+		lb_push_func(on_new_window);
+			lb_new_window(&client, window);
+			list_item_t *item = list_new_item(clients);
+			item->data = (void*)client;
+			client->border_width = cfg.border_width;
+		lb_call(1);
+
+		xcb_grab_button(c, 1, client->window,
+				XCB_EVENT_MASK_BUTTON_PRESS,
+				XCB_GRAB_MODE_SYNC,
+				XCB_GRAB_MODE_ASYNC,
+				XCB_WINDOW_NONE,
+				XCB_CURSOR_NONE,
+				XCB_BUTTON_INDEX_ANY,
+				XCB_MOD_MASK_ANY);
+	}
+
+	set_window_border(c, client, cfg.border_width, cfg.border_normal_color);
+
+	xcb_flush(c);
+error:
+	return;
 }
 
 
