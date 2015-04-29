@@ -278,9 +278,8 @@ int main(int argc, char** argv)
 
 	root = screen->root;
 
-	uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+	uint32_t mask = XCB_CW_EVENT_MASK;
 	uint32_t values[] = {
-		screen->white_pixel,
 		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
 		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
 		| XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
