@@ -5,7 +5,7 @@
 # To simplify testing
 
 BIN_PATH="build/kasswm"
-RES="800x600"
+RES="1280x720"
 
 Xephyr -screen $RES -br :1 &
 sleep 1
@@ -23,7 +23,7 @@ do
 
 		echo "===== Restarting $BIN_PATH ====="
 		DISPLAY=:1 $BIN_PATH  "$1" &
-		DISPLAY=:1 xsetroot -solid gray
+		DISPLAY=:1 xsetroot -solid "#222222"
 		DISPLAY=:1 xrdb -m ~/.Xresources
 		PID="$!"
 		LTIME=$ATIME
