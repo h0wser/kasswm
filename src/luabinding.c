@@ -64,6 +64,7 @@ static int lb_window_map(lua_State *l) {
 	check(client, "client is null");
 
 	map_window(c, client);
+	xcb_flush(c);
 
 error:
 	return 0;
@@ -74,6 +75,7 @@ static int lb_window_unmap(lua_State *l) {
 	check(client, "client is null");
 
 	unmap_window(c, client);
+	xcb_flush(c);
 error:
 	return 0;
 }
@@ -83,6 +85,7 @@ static int lb_window_focus(lua_State *l) {
 	check(client, "client is null");
 
 	focus_window(c, client, &focused);
+	xcb_flush(c);
 
 error:
 	return 0;
