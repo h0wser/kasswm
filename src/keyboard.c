@@ -114,6 +114,7 @@ static sym lookuptable[] = {
 	{ "home"    , XK_Home }, 
 	{ "pg-up"   , XK_Page_Up }, 
 	{ "pg-down" , XK_Page_Down }, 
+	{ "return"  , XK_Return },
 	/* function keys */
 	{ "f1", XK_F1 },
 	{ "f2", XK_F2 },

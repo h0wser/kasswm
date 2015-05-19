@@ -91,6 +91,16 @@ error:
 	return 0;
 }
 
+static int lb_window_close(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	destroy_window(c, client);
+	xcb_flush(c);
+	pdebug("removing window %d", client->window);
+error:
+	return 0;
+}
+
 static int lb_window_getx(lua_State *l) {
 	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
@@ -139,6 +149,7 @@ error:
 	return 1;
 }
 
+
 static const struct luaL_Reg windowlib_m[] = {
 	{ "test", lb_window_test },
 	{ "move", lb_window_move },
@@ -147,6 +158,7 @@ static const struct luaL_Reg windowlib_m[] = {
 	{ "show", lb_window_map },
 	{ "hide", lb_window_unmap },
 	{ "focus", lb_window_focus },
+	{ "close", lb_window_close },
 	{ "getx", lb_window_getx },
 	{ "gety", lb_window_gety },
 	{ "getw", lb_window_getw },
@@ -325,7 +337,7 @@ void lb_new_window(client_t **client, xcb_window_t window)
 	new_window(c, *client, window);
 
 	/* This is dumb but i can't use luaL_setmetatable(L, "kass.window")
-	 * for some reason*/
+	* for some reason*/
 	lb_get_table(TABLENAME);
 	lua_getfield(L, -1, "window");
 	lua_setmetatable(L, -3);
@@ -348,7 +360,7 @@ void lb_remove_window(client_t *client)
 	if (lb_get_table(TABLENAME)) {
 		log_error("Failed to get clients table");
 	}
-	
+
 	if (!client)
 		goto error; // Die silently
 

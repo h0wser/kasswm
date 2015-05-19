@@ -16,4 +16,7 @@ extern client_t *focused;
 extern CONFIG cfg;
 extern keypress_t *keys;
 
+enum { WM_PROTOCOLS, WM_DELETE_WINDOW, WM_COUNT };
+extern xcb_atom_t wm_atoms[WM_COUNT];
+
 #endif /* GLOBAL_H */

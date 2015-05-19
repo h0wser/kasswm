@@ -25,6 +25,7 @@ void on_maprequest(xcb_window_t window);
 /* Helper functions */
 client_t* find_window(xcb_window_t window);
 void remove_window(xcb_window_t window);
+void get_atoms();
 
 /* globals */
 xcb_connection_t *c = NULL;
@@ -35,6 +36,9 @@ client_t *focused = NULL;
 CONFIG cfg;
 keypress_t *keys = NULL;
 const char* cfg_f;
+
+static char *WM_ATOM_NAMES[] = { "WM_PROTOCOLS", "WM_DELETE_WINDOW" };
+xcb_atom_t wm_atoms[WM_COUNT];
 
 /* Callbacks */
 lb_func on_setup;
@@ -135,6 +139,7 @@ void setup_callbacks()
 	on_destroy_window = lb_is_callback("destroy_window");
 }
 
+
 void setup(const char* cfg_file)
 {
 	xcb_query_tree_cookie_t cookie;
@@ -148,6 +153,8 @@ void setup(const char* cfg_file)
 	check(keys, "failed to malloc keys");
 
 	clients = list_new();
+
+	get_atoms();
 
 	lb_init(screen->width_in_pixels, screen->height_in_pixels);
 	lb_load_config(cfg_file, &cfg);
@@ -252,6 +259,27 @@ void remove_window(xcb_window_t window)
 		}
 	}
 }
+
+void get_atoms()
+{
+	xcb_intern_atom_cookie_t cookies[WM_COUNT];
+	xcb_intern_atom_reply_t *reply;
+
+	for (int i = 0; i < WM_COUNT; i++)
+		cookies[i] = xcb_intern_atom(c, 0, strlen(WM_ATOM_NAMES[i]),
+			WM_ATOM_NAMES[i]);
+
+	for (int i = 0; i < WM_COUNT; i++) {
+		reply = xcb_intern_atom_reply(c, cookies[i], NULL);
+		if (reply) {
+			wm_atoms[i] = reply->atom;
+			free(reply);
+		} else {
+			log_warn("Failed to get atom %s", WM_ATOM_NAMES[i]);
+		}
+	}
+}
+
 /* End helper functions */
 
 int main(int argc, char** argv)
