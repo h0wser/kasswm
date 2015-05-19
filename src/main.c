@@ -90,13 +90,6 @@ void events_loop(void)
 				pdebug("Window destroyed");
 				xcb_destroy_notify_event_t *e = (xcb_destroy_notify_event_t*) event;
 
-				lb_push_func(on_destroy_window);
-				lb_push_number(e->window);
-				lb_call(1);
-
-				lb_remove_window(find_window(e->window));
-				remove_window(e->window);
-
 				if (clients->start) {
 					focus_window(c, clients->start->data, &focused);
 					xcb_flush(c);
@@ -104,6 +97,12 @@ void events_loop(void)
 					focused = NULL;
 				}
 
+				lb_push_func(on_destroy_window);
+				lb_push_number(e->window);
+				lb_call(1);
+
+				lb_remove_window(find_window(e->window));
+				remove_window(e->window);
 				break;
 			}
 			case XCB_KEY_PRESS:
