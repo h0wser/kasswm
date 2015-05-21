@@ -28,6 +28,9 @@ void map_window(xcb_connection_t *c, client_t *client);
 void unmap_window(xcb_connection_t *c, client_t *client);
 void toggle_map_window(xcb_connection_t *c, client_t *client);
 
+void stack_window_top(xcb_connection_t *c, client_t *client);
+void stack_window_bottom(xcb_connection_t *c, client_t *client);
+
 void set_window_border(xcb_connection_t *c, client_t *client, uint16_t border_width, int color);
 
 void focus_window(xcb_connection_t *c, client_t *client, client_t **focused);

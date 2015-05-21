@@ -65,6 +65,18 @@ void toggle_map_window(xcb_connection_t *c, client_t *client)
 		map_window(c, client);
 }
 
+void stack_window_top(xcb_connection_t *c, client_t *client)
+{
+	uint32_t values[] = { XCB_STACK_MODE_ABOVE };
+	xcb_configure_window(c, client->window, XCB_CONFIG_WINDOW_STACK_MODE, values);
+}
+
+void stack_window_bottom(xcb_connection_t *c, client_t *client)
+{
+	uint32_t values[] = { XCB_STACK_MODE_BELOW };
+	xcb_configure_window(c, client->window, XCB_CONFIG_WINDOW_STACK_MODE, values);
+}
+
 void set_window_border(xcb_connection_t *c, client_t *client, uint16_t border_width, int color)
 {
 	check(c, "connection can't be null");

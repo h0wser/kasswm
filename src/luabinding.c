@@ -16,8 +16,8 @@ static int lb_window_move(lua_State *l) {
 	int x, y;
 	check(client, "client is null");
 
-	x = luaL_checkint(l, 2);
-	y = luaL_checkint(l, 3);
+	x = luaL_checkinteger(l, 2);
+	y = luaL_checkinteger(l, 3);
 
 	move_window(c, client, x, y);
 	xcb_flush(c);
@@ -31,8 +31,8 @@ static int lb_window_move_relative(lua_State *l) {
 	int x, y;
 	check(client, "client is null");
 
-	x = luaL_checkint(l, 2);
-	y = luaL_checkint(l, 3);
+	x = luaL_checkinteger(l, 2);
+	y = luaL_checkinteger(l, 3);
 
 	move_window_relative(c, client, x, y);
 	xcb_flush(c);
@@ -46,8 +46,8 @@ static int lb_window_resize(lua_State *l) {
 	int w, h;
 	check(client, "client is null");
 
-	w = luaL_checkint(l, 2);
-	h = luaL_checkint(l, 3);
+	w = luaL_checkinteger(l, 2);
+	h = luaL_checkinteger(l, 3);
 
 	resize_window(c, client,
 		w - client->border_width * 2,
@@ -149,6 +149,23 @@ error:
 	return 1;
 }
 
+static int lb_window_raise(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	stack_window_top(c, client);
+	xcb_flush(c);
+error:
+	return 0;
+}
+
+static int lb_window_lower(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	stack_window_bottom(c, client);
+	xcb_flush(c);
+error:
+	return 0;
+}
 
 static const struct luaL_Reg windowlib_m[] = {
 	{ "test", lb_window_test },
@@ -165,6 +182,8 @@ static const struct luaL_Reg windowlib_m[] = {
 	{ "geth", lb_window_geth },
 	{ "mapped", lb_window_mapped },
 	{ "hasfocus", lb_window_hasfocus },
+	{ "raise", lb_window_raise },
+	{ "lower", lb_window_lower },
 	{ NULL, NULL }
 };
 

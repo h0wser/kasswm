@@ -15,6 +15,18 @@ function kass.setup()
 		print("Hello my friend")
 	end)
 
+	kass.key.bind("return", {"mod4"}, function()
+		os.execute("urxvt&")
+	end)
+
+	kass.key.bind("s", {}, function()
+		get_focused():raise()
+	end)
+
+	kass.key.bind("d", {}, function()
+		get_focused():lower()
+	end)
+
 	kass.key.bind("a", {"ctrl"}, function()
 		get_focused():move_relative(20, 0)
 	end)
