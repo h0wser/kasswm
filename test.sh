@@ -9,6 +9,7 @@ RES="1280x720"
 
 Xephyr -screen $RES -br :1 &
 sleep 1
+DISPLAY=:1 sxhkd &
 
 while true;
 do
