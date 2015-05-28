@@ -115,7 +115,7 @@ void events_loop(void)
 				}
 
 				for (int i = 0; i < lb_get_keycount(); i++) {
-					if (keys[i].kc == e->detail) {
+					if (keys[i].kc == e->detail && keys[i].mask == e->state) {
 						lb_on_keypress(keys[i].callback_index);
 						break;
 					}
