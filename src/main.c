@@ -314,8 +314,6 @@ int main(int argc, char** argv)
 
 	xcb_change_window_attributes_checked(c, root, mask, values);
 
-
-
 	log_info("Information of screen: %d", screen->root);
 	log_info("Width: %d", screen->width_in_pixels);
 	log_info("Height: %d", screen->height_in_pixels);

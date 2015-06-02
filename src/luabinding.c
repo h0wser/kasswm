@@ -59,6 +59,19 @@ error:
 	return 0;
 }
 
+static int lb_window_set_boder(lua_State *l) {
+	client_t *client = lua_touserdata(l, 1);
+	check(client, "client is null");
+	int width, color;
+	color = luaL_checkinteger(l, 2);
+	width = luaL_checkinteger(l, 3);
+
+	set_window_border(c, client, width, color);
+	xcb_flush(c);
+error:
+	return 0;
+}
+
 static int lb_window_map(lua_State *l) {
 	client_t *client = lua_touserdata(l, 1);
 	check(client, "client is null");
@@ -184,6 +197,7 @@ static const struct luaL_Reg windowlib_m[] = {
 	{ "hasfocus", lb_window_hasfocus },
 	{ "raise", lb_window_raise },
 	{ "lower", lb_window_lower },
+	{ "set_border", lb_window_set_boder },
 	{ NULL, NULL }
 };
 
