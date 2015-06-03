@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <libgen.h>
+#include <unistd.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
@@ -143,17 +145,24 @@ void setup(const char* cfg_file)
 {
 	xcb_query_tree_cookie_t cookie;
 	xcb_query_tree_reply_t *reply;
+	const char *dir;
+	char path_copy[300];
 	xcb_window_t *windows;
 	int i;
 
 	cfg = DEFAULT_CONFIG;
 
-	keys = malloc(sizeof(keypress_t) * 64); // COMPLETELY ARBITRARY AND VERY STOOPID
+	keys = malloc(sizeof(keypress_t) * 256); // COMPLETELY ARBITRARY AND VERY STOOPID
 	check(keys, "failed to malloc keys");
 
 	clients = list_new();
 
 	get_atoms();
+
+	memset(path_copy, 0, sizeof(path_copy));
+	strncpy(path_copy, cfg_file, sizeof(path_copy));
+	dir = dirname(path_copy);
+	chdir(dir);
 
 	lb_init(screen->width_in_pixels, screen->height_in_pixels);
 	lb_load_config(cfg_file, &cfg);
